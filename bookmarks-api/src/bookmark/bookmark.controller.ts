@@ -7,7 +7,7 @@ import { BookmarkService } from './bookmark.service';
 @UseGuards(JwtGuard)
 @Controller('bookmarks')
 export class BookmarkController {
-    constructor(private bookmarkService: any) {
+    constructor(private bookmarkService: BookmarkService) {
 
     };
 
