@@ -41,8 +41,8 @@ describe('App e2e', () => {
 
   describe('Auth', () => {
     const dto: AuthDto = {
-      email: 'vlad@gmail.com',
-      password: '123',
+      email: 'rodrigobezerrasaraiva@gmail.com',
+      password: '123456',
     };
 
     describe('Signup', () => {
@@ -120,144 +120,144 @@ describe('App e2e', () => {
       });
     });
   });
-});
 
-describe('User', () => {
-  describe('Get me', () => {
-    it('should get current user', () => {
-      return pactum
-        .spec()
-        .get('/users/me')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .expectStatus(200);
+  describe('User', () => {
+    describe('Get me', () => {
+      it('should get current user', async () => {      
+        return await pactum
+          .spec()
+          .get('/users/me')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200);
+      });
+    });
+  
+    describe('Edit user', () => {
+      it('should edit user', () => {
+        const dto: EditUserDto = {
+          firstName: 'Vladimir',
+          email: 'vlad@codewithvlad.com',
+        };
+        return pactum
+          .spec()
+          .patch('/users')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.firstName)
+          .expectBodyContains(dto.email);
+      });
     });
   });
-
-  describe('Edit user', () => {
-    it('should edit user', () => {
-      const dto: EditUserDto = {
-        firstName: 'Vladimir',
-        email: 'vlad@codewithvlad.com',
+  
+  describe('Bookmarks', () => {
+    describe('Get empty bookmarks', () => {
+      it('should get empty return from bookmarks', () => {
+        return pactum
+          .spec()
+          .get('/bookmarks')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectBody([]);
+      });
+    });
+  
+    describe('Create bookmark', () => {
+      const dto: CreateBookmarkDto = {
+        title: 'First Bookmark',
+        link: 'https://www.youtube.com/watch?v=d6WC5n9G_sM',
       };
-      return pactum
-        .spec()
-        .patch('/users')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .withBody(dto)
-        .expectStatus(200)
-        .expectBodyContains(dto.firstName)
-        .expectBodyContains(dto.email);
+      it('should create bookmark', () => {
+        return pactum
+          .spec()
+          .post('/bookmarks')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(201)
+          .stores('bookmarkId', 'id');
+      });
     });
-  });
-});
-
-describe('Bookmarks', () => {
-  describe('Get empty bookmarks', () => {
-    it('should get empty return from bookmarks', () => {
-      return pactum
-        .spec()
-        .get('/bookmarks')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .expectStatus(200)
-        .expectBody([]);
+  
+    describe('Get bookmarks', () => {
+      it('should get bookmarks', () => {
+        return pactum
+          .spec()
+          .get('/bookmarks')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
     });
-  });
-
-  describe('Create bookmark', () => {
-    const dto: CreateBookmarkDto = {
-      title: 'First Bookmark',
-      link: 'https://www.youtube.com/watch?v=d6WC5n9G_sM',
-    };
-    it('should create bookmark', () => {
-      return pactum
-        .spec()
-        .post('/bookmarks')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .withBody(dto)
-        .expectStatus(201)
-        .stores('bookmarkId', 'id');
+  
+    describe('Get bookmark by id', () => {
+      it('should get bookmark by id', () => {
+        return pactum
+          .spec()
+          .get('/bookmarks/{id}')
+          .withPathParams('id', '$S{bookmarkId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectBodyContains('$S{bookmarkId}');
+      });
     });
-  });
-
-  describe('Get bookmarks', () => {
-    it('should get bookmarks', () => {
-      return pactum
-        .spec()
-        .get('/bookmarks')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .expectStatus(200)
-        .expectJsonLength(1);
+  
+    describe('Edit bookmark', () => {
+      const dto: EditBookmarkDto = {
+        title:
+          'Kubernetes Course - Full Beginners Tutorial (Containerize Your Apps!)',
+        description:
+          'Learn how to use Kubernetes in this complete course. Kubernetes makes it possible to containerize applications and simplifies app deployment to production.',
+      };
+  
+      it('should edit bookmark', () => {
+        return pactum
+          .spec()
+          .patch('/bookmarks/{id}')
+          .withPathParams('id', '$S{bookmarkId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.title)
+          .expectBodyContains(dto.description);
+      });
     });
-  });
-
-  describe('Get bookmark by id', () => {
-    it('should get bookmark by id', () => {
-      return pactum
-        .spec()
-        .get('/bookmarks/{id}')
-        .withPathParams('id', '$S{bookmarkId}')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .expectStatus(200)
-        .expectBodyContains('$S{bookmarkId}');
-    });
-  });
-
-  describe('Edit bookmark', () => {
-    const dto: EditBookmarkDto = {
-      title:
-        'Kubernetes Course - Full Beginners Tutorial (Containerize Your Apps!)',
-      description:
-        'Learn how to use Kubernetes in this complete course. Kubernetes makes it possible to containerize applications and simplifies app deployment to production.',
-    };
-
-    it('should edit bookmark', () => {
-      return pactum
-        .spec()
-        .patch('/bookmarks/{id}')
-        .withPathParams('id', '$S{bookmarkId}')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .withBody(dto)
-        .expectStatus(200)
-        .expectBodyContains(dto.title)
-        .expectBodyContains(dto.description);
-    });
-  });
-
-  describe('Delete bookmark', () => {
-    it('should delete bookmark', () => {
-      return pactum
-        .spec()
-        .delete('/bookmarks/{id}')
-        .withPathParams('id', '$S{bookmarkId}')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .expectStatus(204);
-    });
-
-    it('should get empty bookmarks', () => {
-      return pactum
-        .spec()
-        .get('/bookmarks')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .expectStatus(200)
-        .expectJsonLength(0);
+  
+    describe('Delete bookmark', () => {
+      it('should delete bookmark', () => {
+        return pactum
+          .spec()
+          .delete('/bookmarks/{id}')
+          .withPathParams('id', '$S{bookmarkId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(204);
+      });
+  
+      it('should get empty bookmarks', () => {
+        return pactum
+          .spec()
+          .get('/bookmarks')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectJsonLength(0);
+      });
     });
   });
 });
