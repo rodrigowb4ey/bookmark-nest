@@ -12,7 +12,6 @@ export class DbService extends PrismaClient {
                 },
             },
         });
-        console.log(config);
     };
 
     cleanDb() {
