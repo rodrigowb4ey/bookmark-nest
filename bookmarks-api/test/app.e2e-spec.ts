@@ -17,6 +17,7 @@ describe('App e2e', () => {
     }).compile();
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -31,7 +32,7 @@ describe('App e2e', () => {
     await db.cleanDb();
 
     pactum.request.setBaseUrl(
-      'http://localhost:3333',
+      'http://localhost:3333/api',
     );
   });
 
